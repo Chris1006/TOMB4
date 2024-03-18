@@ -13,104 +13,7 @@ void init_tomb4_stuff()
 	bool first;
 
 	OpenRegistry("tomb4");
-	first = REG_KeyWasCreated();
-
-	if (first)	//key was created = no settings found, write defaults
-	{
-		sprintf(buf, "footprints");
-		tomb4.footprints = 1;							//footprints on
-		REG_WriteBool(buf, tomb4.footprints);
-
-		sprintf(buf, "shadow");
-		tomb4.shadow_mode = 3;							//PSX like shadow
-		REG_WriteLong(buf, tomb4.shadow_mode);
-
-		sprintf(buf, "crawltilt");
-		tomb4.crawltilt = 1;							//crawl tilt on
-		REG_WriteBool(buf, tomb4.crawltilt);
-
-		sprintf(buf, "flex_crawl");
-		tomb4.flexible_crawling = 1;					//on
-		REG_WriteBool(buf, tomb4.flexible_crawling);
-
-		sprintf(buf, "climbup");
-		tomb4.fix_climb_up_delay = 1;					//no delay
-		REG_WriteBool(buf, tomb4.fix_climb_up_delay);
-
-		sprintf(buf, "gameover");
-		tomb4.gameover = 1;								//on
-		REG_WriteBool(buf, tomb4.gameover);
-
-		sprintf(buf, "barMode");
-		tomb4.bar_mode = 3;								//PSX
-		REG_WriteLong(buf, tomb4.bar_mode);
-
-		sprintf(buf, "bar_pos");
-		tomb4.bars_pos = 1;								//improved
-		REG_WriteLong(buf, tomb4.bars_pos);
-
-		sprintf(buf, "enemy_bar");
-		tomb4.enemy_bars = 0;							//off
-		REG_WriteBool(buf, tomb4.enemy_bars);
-
-		sprintf(buf, "cutseq_skipper");
-		tomb4.cutseq_skipper = 0;						//off
-		REG_WriteBool(buf, tomb4.cutseq_skipper);
-
-		sprintf(buf, "cheats");
-		tomb4.cheats = 0;								//off
-		REG_WriteBool(buf, tomb4.cheats);
-
-		sprintf(buf, "loadtxt");
-		tomb4.loadingtxt = 1;							//on
-		REG_WriteBool(buf, tomb4.loadingtxt);
-
-		sprintf(buf, "inv_bgM");
-		tomb4.inv_bg_mode = 1;							//original
-		REG_WriteLong(buf, tomb4.inv_bg_mode);
-
-		sprintf(buf, "tr5LB");
-		tomb4.tr5_loadbar = 0;							//off
-		REG_WriteBool(buf, tomb4.tr5_loadbar);
-
-		sprintf(buf, "ltransparency");
-		tomb4.look_transparency = 0;					//off
-		REG_WriteBool(buf, tomb4.look_transparency);
-
-		sprintf(buf, "ammo_counter");
-		tomb4.ammo_counter = 0;							//off
-		REG_WriteBool(buf, tomb4.ammo_counter);
-
-		sprintf(buf, "ammotype_hotkeys");
-		tomb4.ammotype_hotkeys = 1;						//on
-		REG_WriteBool(buf, tomb4.ammotype_hotkeys);
-
-		sprintf(buf, "combat_tilt");
-		tomb4.combat_cam_tilt = 1;						//on
-		REG_WriteBool(buf, tomb4.combat_cam_tilt);
-
-		sprintf(buf, "inv_hpbar");
-		tomb4.hpbar_inv = 0;							//off
-		REG_WriteBool(buf, tomb4.hpbar_inv);
-
-		sprintf(buf, "static_lighting");
-		tomb4.static_lighting = 1;						//on
-		REG_WriteBool(buf, tomb4.static_lighting);
-
-		sprintf(buf, "reverb");
-		tomb4.reverb = 2;								//Lara room
-		REG_WriteLong(buf, tomb4.reverb);
-
-		sprintf(buf, "distance_fog");
-		tomb4.distance_fog = 12;						//default is 12
-		REG_WriteLong(buf, tomb4.distance_fog);
-
-		sprintf(buf, "UIScale");
-		tomb4.GUI_Scale = 1.0F;							//default is 1.0F
-		REG_WriteFloat(buf, tomb4.GUI_Scale);
-	}
-	else	//Key already exists, settings already written, read them. also falls back to default if any of them missing
-	{
+	
 		sprintf(buf, "footprints");
 		REG_ReadBool(buf, tomb4.footprints, 1);
 
@@ -179,7 +82,6 @@ void init_tomb4_stuff()
 
 		sprintf(buf, "UIScale");
 		REG_ReadFloat(buf, tomb4.GUI_Scale, 1.0F);
-	}
 
 	CloseRegistry();
 }

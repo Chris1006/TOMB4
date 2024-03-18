@@ -4,65 +4,43 @@
 #include "cmdline.h"
 #include "input.h"
 #include "winmain.h"
+#include "stdlib.h"
+#include <string>
 
-static HKEY phkResult;
-static DWORD dwDisposition;
 static bool REG_Setup;
 
-bool REG_OpenKey(LPCSTR lpSubKey)
-{
-	return RegCreateKeyEx(HKEY_CURRENT_USER, lpSubKey, 0, (CHAR*)"", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &phkResult, &dwDisposition) == ERROR_SUCCESS;
+LPCSTR DEFAULT = "default";
+LPCSTR INIFILE = ".\\tomb4.ini";
+
+LPCSTR LpSubKey;
+
+void CloseRegistry() {
+	LpSubKey = "";
 }
 
 bool OpenRegistry(LPCSTR SubKeyName)
 {
-	char buffer[256];
-
-	if (!SubKeyName)
-		return REG_OpenKey("Software\\Core Design\\Tomb Raider IV");
-
-	sprintf(buffer, "%s\\%s", "Software\\Core Design\\Tomb Raider IV", SubKeyName);
-	return REG_OpenKey(buffer);
-}
-
-void REG_CloseKey()
-{
-	RegCloseKey(phkResult);
-}
-
-void CloseRegistry()
-{
-	REG_CloseKey();
+	LpSubKey = SubKeyName;
+	return true;
 }
 
 void REG_WriteLong(char* SubKeyName, ulong value)
 {
-	RegSetValueEx(phkResult, SubKeyName, 0, REG_DWORD, (CONST BYTE*) & value, sizeof(ulong));
+	WritePrivateProfileString(LpSubKey, SubKeyName, std::to_string(value).c_str(), INIFILE);
 }
 
 void REG_WriteBool(char* SubKeyName, bool value)
 {
 	ulong Lvalue;
 
+
 	Lvalue = (ulong)value;
-	RegSetValueEx(phkResult, SubKeyName, 0, REG_DWORD, (CONST BYTE*) & Lvalue, sizeof(ulong));
+	WritePrivateProfileString(LpSubKey, SubKeyName, std::to_string(value).c_str(), INIFILE);
 }
 
 void REG_WriteString(char* SubKeyName, char* string, long length)
 {
-	long checkLength;
-
-	if (string)
-	{
-		if (length < 0)
-			checkLength = strlen(string);
-		else
-			checkLength = length;
-
-		RegSetValueEx(phkResult, SubKeyName, 0, REG_SZ, (CONST BYTE*)string, checkLength + 1);
-	}
-	else
-		RegDeleteValue(phkResult, SubKeyName);
+	WritePrivateProfileString(LpSubKey, SubKeyName, std::string(string).c_str(), INIFILE);
 }
 
 void REG_WriteFloat(char* SubKeyName, float value)
@@ -71,18 +49,20 @@ void REG_WriteFloat(char* SubKeyName, float value)
 	char buf[64];
 
 	length = sprintf(buf, "%.5f", value);
-	REG_WriteString(SubKeyName, buf, length);
+	WritePrivateProfileString(LpSubKey, SubKeyName, std::string(buf).c_str(), INIFILE);
 }
 
 bool REG_ReadLong(char* SubKeyName, ulong& value, ulong defaultValue)
 {
-	ulong type;
-	ulong cbData;
+	char buffer[64];
+	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, std::to_string(defaultValue).c_str(), buffer, sizeof(buffer), INIFILE);
+	
 
-	cbData = 4;
+	if (Read > 0) {
 
-	if (RegQueryValueEx(phkResult, SubKeyName, 0, &type, (LPBYTE)&value, &cbData) == ERROR_SUCCESS && type == REG_DWORD && cbData == 4)
+		value = std::stol(buffer);
 		return 1;
+	}
 
 	REG_WriteLong(SubKeyName, defaultValue);
 	value = defaultValue;
@@ -91,15 +71,13 @@ bool REG_ReadLong(char* SubKeyName, ulong& value, ulong defaultValue)
 
 bool REG_ReadBool(char* SubKeyName, bool& value, bool defaultValue)
 {
-	ulong type;
-	ulong cbData;
-	ulong data;
+	char buffer[64];
+	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, std::to_string(defaultValue).c_str(), buffer, sizeof(buffer), INIFILE);
 
-	cbData = 4;
 
-	if (RegQueryValueEx(phkResult, SubKeyName, 0, &type, (LPBYTE)&data, &cbData) == ERROR_SUCCESS && type == REG_DWORD && cbData == 4)
-	{
-		value = (bool)data;
+	if (Read > 0) {
+
+		value = (bool)std::stol(buffer);
 		return 1;
 	}
 
@@ -110,14 +88,18 @@ bool REG_ReadBool(char* SubKeyName, bool& value, bool defaultValue)
 
 bool REG_ReadString(char* SubKeyName, char* value, long length, char* defaultValue)
 {
-	ulong type;
 	ulong cbData;
 	long len;
 
 	cbData = length;
 
-	if (RegQueryValueEx(phkResult, SubKeyName, 0, &type, (LPBYTE)value, (LPDWORD)&cbData) == ERROR_SUCCESS && type == REG_SZ)
+	char buffer[64];
+	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, std::string(defaultValue).c_str(), buffer, sizeof(buffer), INIFILE);
+
+	if (Read > 0) {
+		memcpy(value, buffer, sizeof(buffer));
 		return 1;
+	}
 
 	if (defaultValue)
 	{
@@ -132,8 +114,6 @@ bool REG_ReadString(char* SubKeyName, char* value, long length, char* defaultVal
 
 		memcpy(value, defaultValue, len);
 	}
-	else
-		RegDeleteValue(phkResult, SubKeyName);
 
 	return 0;
 }
@@ -142,7 +122,9 @@ bool REG_ReadFloat(char* SubKeyName, float& value, float defaultValue)
 {
 	char buf[64];
 
-	if (REG_ReadString(SubKeyName, buf, sizeof(buf), 0))
+	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, std::to_string(defaultValue).c_str(), buf, sizeof(buf), INIFILE);
+
+	if (Read > 0)
 	{
 		value = (float)atof(buf);
 		return 1;
@@ -335,7 +317,3 @@ bool SaveSetup(HWND hDlg)
 	return 1;
 }
 
-bool REG_KeyWasCreated()
-{
-	return dwDisposition == REG_CREATED_NEW_KEY;
-}
