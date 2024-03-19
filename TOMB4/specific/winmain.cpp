@@ -2,7 +2,7 @@
 #include "winmain.h"
 #include "function_stubs.h"
 #include "cmdline.h"
-#include "registry.h"
+#include "inifile.h"
 #include "dxshell.h"
 #include <time.h>
 #include "../game/text.h"

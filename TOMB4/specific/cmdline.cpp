@@ -2,7 +2,7 @@
 #include "cmdline.h"
 #include "function_stubs.h"
 #include "../game/gameflow.h"
-#include "registry.h"
+#include "inifile.h"
 #include "winmain.h"
 
 char ASCIIToANSITable[7][2] =

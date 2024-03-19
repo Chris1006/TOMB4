@@ -1,6 +1,6 @@
 #include "../tomb4/pch.h"
 #include "tomb4.h"
-#include "../specific/registry.h"
+#include "../specific/inifile.h"
 #include "libs/discordRPC/discord_rpc.h"
 #include "../game/lara.h"
 #include "../game/gameflow.h"

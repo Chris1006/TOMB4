@@ -1,21 +1,53 @@
 #include "../tomb4/pch.h"
-#include "registry.h"
+#include "inifile.h"
 #include "LoadSave.h"
 #include "cmdline.h"
 #include "input.h"
 #include "winmain.h"
-#include "stdlib.h"
-#include <string>
 
 static bool REG_Setup;
 
-LPCSTR DEFAULT = "default";
-LPCSTR INIFILE = ".\\tomb4.ini";
+static LPCSTR INIFILE = (char*)".\\tomb4.ini";
 
-LPCSTR LpSubKey;
+static LPCSTR LpSubKey = (char*)"";
+
+LPCSTR toString(ulong l)
+{
+	char buffer[64];
+	snprintf(buffer, sizeof(buffer), "%lu", l);
+	return buffer;
+}
+
+LPCSTR toString(bool b)
+{
+	char buffer[64];
+	snprintf(buffer, sizeof(buffer), "%d", b);
+	return buffer;
+}
+
+LPCSTR toString(float f)
+{
+	char buffer[64];
+	snprintf(buffer, sizeof(buffer), "%.5f", f);
+	return (char*)"";
+}
+
+ulong strToUl(LPCSTR str) {
+	return atol(str);
+}
+
+bool strToB(LPCSTR str) {
+
+	return atoi(str);
+}
+
+float strToF(LPCSTR str) {
+	return atof(str);
+}
+
 
 void CloseRegistry() {
-	LpSubKey = "";
+	LpSubKey = (char*)"";
 }
 
 bool OpenRegistry(LPCSTR SubKeyName)
@@ -26,7 +58,7 @@ bool OpenRegistry(LPCSTR SubKeyName)
 
 void REG_WriteLong(char* SubKeyName, ulong value)
 {
-	WritePrivateProfileString(LpSubKey, SubKeyName, std::to_string(value).c_str(), INIFILE);
+	WritePrivateProfileString(LpSubKey, SubKeyName, toString(value), INIFILE);
 }
 
 void REG_WriteBool(char* SubKeyName, bool value)
@@ -35,12 +67,12 @@ void REG_WriteBool(char* SubKeyName, bool value)
 
 
 	Lvalue = (ulong)value;
-	WritePrivateProfileString(LpSubKey, SubKeyName, std::to_string(value).c_str(), INIFILE);
+	WritePrivateProfileString(LpSubKey, SubKeyName, toString(Lvalue), INIFILE);
 }
 
 void REG_WriteString(char* SubKeyName, char* string, long length)
 {
-	WritePrivateProfileString(LpSubKey, SubKeyName, std::string(string).c_str(), INIFILE);
+	WritePrivateProfileString(LpSubKey, SubKeyName, string, INIFILE);
 }
 
 void REG_WriteFloat(char* SubKeyName, float value)
@@ -49,18 +81,18 @@ void REG_WriteFloat(char* SubKeyName, float value)
 	char buf[64];
 
 	length = sprintf(buf, "%.5f", value);
-	WritePrivateProfileString(LpSubKey, SubKeyName, std::string(buf).c_str(), INIFILE);
+	WritePrivateProfileString(LpSubKey, SubKeyName, buf, INIFILE);
 }
 
 bool REG_ReadLong(char* SubKeyName, ulong& value, ulong defaultValue)
 {
 	char buffer[64];
-	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, std::to_string(defaultValue).c_str(), buffer, sizeof(buffer), INIFILE);
+	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, toString(defaultValue), buffer, sizeof(buffer), INIFILE);
 	
 
 	if (Read > 0) {
 
-		value = std::stol(buffer);
+		value = strToUl(buffer);
 		return 1;
 	}
 
@@ -72,12 +104,12 @@ bool REG_ReadLong(char* SubKeyName, ulong& value, ulong defaultValue)
 bool REG_ReadBool(char* SubKeyName, bool& value, bool defaultValue)
 {
 	char buffer[64];
-	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, std::to_string(defaultValue).c_str(), buffer, sizeof(buffer), INIFILE);
+	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, toString(defaultValue), buffer, sizeof(buffer), INIFILE);
 
 
 	if (Read > 0) {
 
-		value = (bool)std::stol(buffer);
+		value = strToB(buffer);
 		return 1;
 	}
 
@@ -94,7 +126,7 @@ bool REG_ReadString(char* SubKeyName, char* value, long length, char* defaultVal
 	cbData = length;
 
 	char buffer[64];
-	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, std::string(defaultValue).c_str(), buffer, sizeof(buffer), INIFILE);
+	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, defaultValue, buffer, sizeof(buffer), INIFILE);
 
 	if (Read > 0) {
 		memcpy(value, buffer, sizeof(buffer));
@@ -122,7 +154,7 @@ bool REG_ReadFloat(char* SubKeyName, float& value, float defaultValue)
 {
 	char buf[64];
 
-	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, std::to_string(defaultValue).c_str(), buf, sizeof(buf), INIFILE);
+	DWORD Read = GetPrivateProfileString(LpSubKey, SubKeyName, toString(defaultValue), buf, sizeof(buf), INIFILE);
 
 	if (Read > 0)
 	{

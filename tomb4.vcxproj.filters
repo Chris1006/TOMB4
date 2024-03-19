@@ -331,7 +331,7 @@
     <ClInclude Include="TOMB4\specific\gamemain.h">
       <Filter>TOMB4\specific</Filter>
     </ClInclude>
-    <ClInclude Include="TOMB4\specific\registry.h">
+    <ClInclude Include="TOMB4\specific\inifile.h">
       <Filter>TOMB4\specific</Filter>
     </ClInclude>
     <ClInclude Include="TOMB4\specific\texture.h">
@@ -662,7 +662,7 @@
     <ClCompile Include="TOMB4\specific\gamemain.cpp">
       <Filter>TOMB4\specific</Filter>
     </ClCompile>
-    <ClCompile Include="TOMB4\specific\registry.cpp">
+    <ClCompile Include="TOMB4\specific\inifile.cpp">
       <Filter>TOMB4\specific</Filter>
     </ClCompile>
     <ClCompile Include="TOMB4\specific\texture.cpp">
