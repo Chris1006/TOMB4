@@ -192,7 +192,14 @@ long S_SaveGame(long slot_num)
 	char buffer[80], counter[16];
 
 	memset(buffer, 0, sizeof(buffer));
-	wsprintf(buffer, "savegame.%d", slot_num);
+
+	DWORD savesAttrib = GetFileAttributes("saves");
+	if (savesAttrib == INVALID_FILE_ATTRIBUTES || !(savesAttrib & FILE_ATTRIBUTE_DIRECTORY))
+	{
+		CreateDirectory("saves", 0);
+	}
+	
+	wsprintf(buffer, "saves\\savegame.%d", slot_num);
 	file = CreateFile(buffer, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (file != INVALID_HANDLE_VALUE)
@@ -226,7 +233,7 @@ long S_LoadGame(long slot_num)
 	long value;
 	char buffer[80];
 
-	wsprintf(buffer, "savegame.%d", slot_num);
+	wsprintf(buffer, "saves\\savegame.%d", slot_num);
 	file = CreateFile(buffer, GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (file != INVALID_HANDLE_VALUE)
